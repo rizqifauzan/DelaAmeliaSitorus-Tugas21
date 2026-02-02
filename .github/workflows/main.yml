@@ -1,6 +1,5 @@
 name: Run JUnit CI
 
-#Triger / Kapan Action-nya jalan
 on:
   push:
     branches: [ "main" ]
@@ -8,48 +7,46 @@ on:
     branches: [ "main" ]
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
 jobs:
   automation-JUnit:
-    runs-on: ubuntu-latest  # windows-latest, macos-latest, ubuntu-18.04,
+    runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3  # Checkout the repository
+      - uses: actions/checkout@v3
 
       - name: Set up JDK 11
-        uses: actions/setup-java@v4.0.0
+        uses: actions/setup-java@v4
         with:
-          java-version: '11'  # Ganti dengan versi Java lain seperti '8', '17'
-          distribution: 'temurin'  # Alternatif: 'adoptopenjdk', 'zulu'
+          java-version: '11'
+          distribution: 'temurin'
 
-      - name: Setup Chrome with extra capabilities
-        uses: browser-actions/setup-chrome@v1.4.0
+      - name: Setup Chrome
+        uses: browser-actions/setup-chrome@v1
         with:
-          chrome-version: latest # Ganti dengan 'stable' untuk versi stabil
-          #chrome-options: '--headless' #(Jika ingin menjalankan Chrome dalam mode headless)
+          chrome-version: latest
 
       - name: Build with Gradle
         run: |
-          chmod +x gradlew  # Make gradlew executable
-          ./gradlew build   # Run the build task before tests
+          chmod +x gradlew
+          ./gradlew build
 
       - name: Run Tests
-        run: ./gradlew clean test  # Run tests after the build step
+        run: ./gradlew clean test
 
       - name: Archive test results
-        uses: actions/upload-artifact@v4.3.0
-        if: always() #always() # success() , failure(), canceled()
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
-          name: cucumber reports
-          path: target/index.html  # Path to test reports
+          name: cucumber-reports
+          path: build/reports/tests/test
 
-       # Deploy to GitHub Pages
       - name: Deploy to GitHub Pages
         if: always()
-        uses: peaceiris/actions-gh-pages@v4.0.0
+        uses: peaceiris/actions-gh-pages@v4
         with:
           personal_token: ${{ secrets.PAT }}
-          publish_dir: target
+          publish_dir: build/reports/tests/test
