@@ -5,7 +5,6 @@ import io.cucumber.java.Before;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
 
 public class Hooks {
 
@@ -14,14 +13,8 @@ public class Hooks {
     @Before
     public void setUp() {
         WebDriverManager.chromedriver().setup();
-
-        ChromeOptions options = new ChromeOptions();
-        options.addArguments("--headless=new");   // WAJIB di CI
-        options.addArguments("--no-sandbox");     // WAJIB di Linux runner
-        options.addArguments("--disable-dev-shm-usage");
-        options.addArguments("--window-size=1920,1080");
-
-        driver = new ChromeDriver(options);
+        driver = new ChromeDriver();
+        driver.manage().window().maximize();
     }
 
     @After
@@ -31,31 +24,3 @@ public class Hooks {
         }
     }
 }
-
-
-//package hooks;
-//
-//import io.cucumber.java.After;
-//import io.cucumber.java.Before;
-//import io.github.bonigarcia.wdm.WebDriverManager;
-//import org.openqa.selenium.WebDriver;
-//import org.openqa.selenium.chrome.ChromeDriver;
-//
-//public class Hooks {
-//
-//    public static WebDriver driver;
-//
-//    @Before
-//    public void setUp() {
-//        WebDriverManager.chromedriver().setup();
-//        driver = new ChromeDriver();
-//        driver.manage().window().maximize();
-//    }
-//
-//    @After
-//    public void tearDown() {
-//        if (driver != null) {
-//            driver.quit();
-//        }
-//    }
-//}
