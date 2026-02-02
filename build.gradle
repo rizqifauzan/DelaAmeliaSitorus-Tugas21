@@ -1,0 +1,88 @@
+plugins {
+    id 'java'
+}
+
+group = 'org.dela'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+
+    testImplementation platform('org.junit:junit-bom:5.10.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+
+    testImplementation 'io.cucumber:cucumber-java:7.15.0'
+    testImplementation 'io.cucumber:cucumber-junit-platform-engine:7.15.0'
+
+    testImplementation 'org.seleniumhq.selenium:selenium-java:4.20.0'
+    testImplementation 'io.github.bonigarcia:webdrivermanager:5.7.0'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+}
+
+test {
+    useJUnitPlatform()
+}
+
+
+
+//plugins {
+//    id 'java'
+//}
+//
+//group = 'org.dela'
+//version = '1.0-SNAPSHOT'
+//
+//repositories {
+//    mavenCentral()
+//}
+//
+//dependencies {
+//
+//    // Cucumber
+//    testImplementation 'io.cucumber:cucumber-java:7.14.0'
+//    testImplementation 'io.cucumber:cucumber-junit:7.14.0'
+//
+//    // Selenium
+//    testImplementation 'org.seleniumhq.selenium:selenium-java:4.17.0'
+//
+//    // WebDriver Manager
+//    testImplementation 'io.github.bonigarcia:webdrivermanager:5.7.0'
+//
+//    // JUnit 4
+//    testImplementation 'junit:junit:4.13.2'
+//}
+//
+//test {
+//    useJUnit()
+//}
+//
+//
+////dependencies {
+////    testImplementation platform('org.junit:junit-bom:5.10.0')
+////    testImplementation 'org.junit.jupiter:junit-jupiter'
+////    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+////    // Selenium
+////    testImplementation 'org.seleniumhq.selenium:selenium-java:4.20.0'
+////
+////    // Cucumber for Java
+////    testImplementation 'io.cucumber:cucumber-java:7.15.0'
+////
+////    // 🔥 Cucumber JUnit 5 Engine
+////    testImplementation 'io.cucumber:cucumber-junit-platform-engine:7.15.0'
+////
+////    // JUnit 5
+////    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
+////
+////    // WebDriver Manager
+////    testImplementation 'io.github.bonigarcia:webdrivermanager:5.7.0'
+////}
+//
+//
+//
+////test {
+////    useJUnitPlatform()
+////}
