@@ -1,6 +1,5 @@
 name: Run JUnit CI
 
-#Triger / Kapan Action-nya jalan
 on:
   push:
     branches: [ "main" ]
@@ -9,72 +8,36 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
-
 
 jobs:
   automation-JUnit:
-    runs-on: ubuntu-latest  # windows-latest, macos-latest, ubuntu-18.04,
+    runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3  # Checkout the repository
+      - uses: actions/checkout@v3
 
       - name: Set up JDK 11
         uses: actions/setup-java@v4.0.0
         with:
-          java-version: '11'  # Ganti dengan versi Java lain seperti '8', '17'
-          distribution: 'temurin'  # Alternatif: 'adoptopenjdk', 'zulu'
+          java-version: '11'
+          distribution: 'temurin'
 
-      - name: Install system dependencies for Chrome
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y wget gnupg
-          # Add Google Chrome repository
-          wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
-          sudo sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list'
-          sudo apt-get update
-          # Install Google Chrome instead of snap chromium
-          sudo apt-get install -y google-chrome-stable
-          # Install required libraries
-          sudo apt-get install -y libgtk-3-0 libxss1 libnss3 libgconf-2-4 libappindicator1 libindicator7 xdg-utils fonts-liberation libappindicator3-1 lsb-release xdg-utils
-
-      - name: Setup Chrome with extra capabilities
+      - name: Setup Chrome
         uses: browser-actions/setup-chrome@latest
-        with:
-          chrome-version: latest
 
       - name: Build with Gradle
         run: |
-          chmod +x gradlew  # Make gradlew executable
-          ./gradlew build -DskipTests # Run the build task before tests
+          chmod +x gradlew
+          ./gradlew build -DskipTests
 
-      - name: Run Tests with Headless Chrome
-        env:
-          HEADLESS: 'true'
-          CHROME_BIN: /usr/bin/google-chrome-stable
+      - name: Run Tests
         run: ./gradlew clean test
 
-      - name: Archive Cucumber Reports
+      - name: Archive test results
         uses: actions/upload-artifact@v4.3.0
         if: always()
         with:
-          name: cucumber-reports
+          name: test-reports
           path: build/reports/tests/test/
           retention-days: 30
 
-      - name: Archive Test Results
-        uses: actions/upload-artifact@v4.3.0
-        if: always()
-        with:
-          name: test-results
-          path: build/test-results/test/
-          retention-days: 30
-
-      - name: Generate Test Report Summary
-        if: always()
-        run: |
-          echo "## Test Results 📊" >> $GITHUB_STEP_SUMMARY
-          if [ -d "build/test-results/test" ]; then
-            echo "✅ Tests completed" >> $GITHUB_STEP_SUMMARY
-          fi
