@@ -12,6 +12,7 @@ permissions:
   pages: write
   id-token: write
 
+
 jobs:
   automation-JUnit:
     runs-on: ubuntu-latest  # windows-latest, macos-latest, ubuntu-18.04,
