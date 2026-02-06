@@ -29,8 +29,15 @@ jobs:
       - name: Install system dependencies for Chrome
         run: |
           sudo apt-get update
-          sudo apt-get install -y chromium-browser chromium-codecs-ffmpeg
-          sudo apt-get install -y libgtk-3-0 libxss1 libnss3 libgconf-2-4 libappindicator1 libindicator7 xdg-utils fonts-liberation libappindicator3-1 libxss1 lsb-release xdg-utils
+          sudo apt-get install -y wget gnupg
+          # Add Google Chrome repository
+          wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+          sudo sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list'
+          sudo apt-get update
+          # Install Google Chrome instead of snap chromium
+          sudo apt-get install -y google-chrome-stable
+          # Install required libraries
+          sudo apt-get install -y libgtk-3-0 libxss1 libnss3 libgconf-2-4 libappindicator1 libindicator7 xdg-utils fonts-liberation libappindicator3-1 lsb-release xdg-utils
 
       - name: Setup Chrome with extra capabilities
         uses: browser-actions/setup-chrome@latest
@@ -45,7 +52,7 @@ jobs:
       - name: Run Tests with Headless Chrome
         env:
           HEADLESS: 'true'
-          CHROME_BIN: /usr/bin/chromium-browser
+          CHROME_BIN: /usr/bin/google-chrome-stable
         run: ./gradlew clean test
 
       - name: Archive Cucumber Reports

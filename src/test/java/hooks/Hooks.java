@@ -20,20 +20,23 @@ public class Hooks {
         // Check for Chrome binary in environment or system paths
         String chromeBin = System.getenv("CHROME_BIN");
         if (chromeBin == null || chromeBin.isEmpty()) {
-            // Try common Chrome paths in Linux
+            // Try common Chrome paths in order of preference
             String[] possiblePaths = {
-                "/usr/bin/chromium-browser",
-                "/usr/bin/chromium",
-                "/snap/bin/chromium",
-                "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
-                "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
-                "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe"
+                "/usr/bin/google-chrome-stable",     // Google Chrome (GitHub Actions preferred)
+                "/usr/bin/google-chrome",             // Google Chrome (alternative)
+                "/usr/bin/chromium-browser",          // Chromium (fallback)
+                "/usr/bin/chromium",                  // Chromium (alternative)
+                "/snap/bin/chromium",                 // Snap package (last resort)
+                "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",  // macOS
+                "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",     // Windows
+                "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe" // Windows 32-bit
             };
 
             for (String path : possiblePaths) {
                 java.nio.file.Path p = java.nio.file.Paths.get(path);
                 if (java.nio.file.Files.exists(p)) {
                     chromeBin = path;
+                    System.out.println("[Hooks] Found Chrome at: " + path);
                     break;
                 }
             }
@@ -42,8 +45,10 @@ public class Hooks {
         // Set Chrome binary if found
         if (chromeBin != null && !chromeBin.isEmpty()) {
             options.setBinary(chromeBin);
+            System.out.println("[Hooks] Using Chrome binary: " + chromeBin);
         } else {
             // Fallback to WebDriverManager if no binary found
+            System.out.println("[Hooks] Chrome binary not found, using WebDriverManager");
             WebDriverManager.chromedriver().setup();
         }
 
@@ -52,6 +57,7 @@ public class Hooks {
         if (isHeadless != null && isHeadless.equals("true")) {
             options.addArguments("--headless=new");
             options.addArguments("--disable-gpu");
+            System.out.println("[Hooks] Headless mode enabled");
         }
 
         // Linux/Docker specific arguments
@@ -87,8 +93,16 @@ public class Hooks {
         options.addArguments("--disable-logging");
         options.addArguments("--disable-breakpad");
 
-        driver = new ChromeDriver(options);
-        driver.manage().timeouts().implicitlyWait(java.time.Duration.ofSeconds(10));
+        // Create driver with retry logic
+        try {
+            driver = new ChromeDriver(options);
+            driver.manage().timeouts().implicitlyWait(java.time.Duration.ofSeconds(10));
+            System.out.println("[Hooks] ChromeDriver initialized successfully");
+        } catch (Exception e) {
+            System.err.println("[Hooks] Error creating ChromeDriver: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
     }
 
     @After
