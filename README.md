@@ -10,8 +10,7 @@ dikelola menggunakan Gradle.
 
 - Java
 - Gradle
-- Selenium WebDriver
-- Cucumber BDD
+- Selenium WebCucumber BDD
 - JUnit
 - WebDriverManager
 - Google Chrome

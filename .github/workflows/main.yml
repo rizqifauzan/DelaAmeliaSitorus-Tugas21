@@ -27,30 +27,40 @@ jobs:
           distribution: 'temurin'  # Alternatif: 'adoptopenjdk', 'zulu'
 
       - name: Setup Chrome with extra capabilities
-        uses: browser-actions/setup-chrome@v1.4.0
+        uses: browser-actions/setup-chrome@latest
         with:
-          chrome-version: latest # Ganti dengan 'stable' untuk versi stabil
-          #chrome-options: '--headless' #(Jika ingin menjalankan Chrome dalam mode headless)
+          chrome-version: latest
 
       - name: Build with Gradle
         run: |
           chmod +x gradlew  # Make gradlew executable
-          ./gradlew build   # Run the build task before tests
+          ./gradlew build -DskipTests # Run the build task before tests
 
-      - name: Run Tests
-        run: ./gradlew clean test  # Run tests after the build step
+      - name: Run Tests with Headless Chrome
+        env:
+          HEADLESS: 'true'
+        run: ./gradlew clean test
 
-      - name: Archive test results
+      - name: Archive Cucumber Reports
         uses: actions/upload-artifact@v4.3.0
-        if: always() #always() # success() , failure(), canceled()
-        with:
-          name: cucumber reports
-          path: target/index.html  # Path to test reports
-
-       # Deploy to GitHub Pages
-      - name: Deploy to GitHub Pages
         if: always()
-        uses: peaceiris/actions-gh-pages@v4.0.0
         with:
-          personal_token: ${{ secrets.PAT }}
-          publish_dir: target
+          name: cucumber-reports
+          path: build/reports/tests/test/
+          retention-days: 30
+
+      - name: Archive Test Results
+        uses: actions/upload-artifact@v4.3.0
+        if: always()
+        with:
+          name: test-results
+          path: build/test-results/test/
+          retention-days: 30
+
+      - name: Generate Test Report Summary
+        if: always()
+        run: |
+          echo "## Test Results 📊" >> $GITHUB_STEP_SUMMARY
+          if [ -d "build/test-results/test" ]; then
+            echo "✅ Tests completed" >> $GITHUB_STEP_SUMMARY
+          fi
